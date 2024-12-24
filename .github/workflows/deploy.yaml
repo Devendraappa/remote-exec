@@ -1,4 +1,4 @@
-name: TerraformRemoteExec  
+name: TerraformRemoteExec
 
 on:
   push:
