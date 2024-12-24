@@ -67,36 +67,35 @@ resource "aws_instance" "web_server" {
 
 }
 */
-
 provider "aws" {
   region = "ap-south-1" # Change to your preferred region
 }
 
 # Create a secret in AWS Secrets Manager
-resource "aws_secretsmanager_secret" "db_password" {
-  name        = "db_password"
+resource "aws_secretsmanager_secret" "db_password_v2" {
+  name        = "db_password_v2" # New name for the secret
   description = "Database password for the EC2 instance"
 }
 
-resource "aws_secretsmanager_secret_version" "db_password_version" {
-  secret_id = aws_secretsmanager_secret.db_password.id
+resource "aws_secretsmanager_secret_version" "db_password_v2_version" {
+  secret_id     = aws_secretsmanager_secret.db_password_v2.id
   secret_string = jsonencode({
     password = "MySecurePassword123!" # Replace with your password
   })
 }
 
 # Retrieve the secret using the data source
-data "aws_secretsmanager_secret" "db_password" {
-  name = aws_secretsmanager_secret.db_password.name
+data "aws_secretsmanager_secret" "db_password_v2" {
+  name = aws_secretsmanager_secret.db_password_v2.name
 }
 
-data "aws_secretsmanager_secret_version" "db_password_version" {
-  secret_id = data.aws_secretsmanager_secret.db_password.id
+data "aws_secretsmanager_secret_version" "db_password_v2_version" {
+  secret_id = data.aws_secretsmanager_secret.db_password_v2.id
 }
 
 # Output the secret value
-output "db_password" {
-  value       = jsondecode(data.aws_secretsmanager_secret_version.db_password_version.secret_string).password
+output "db_password_v2" {
+  value       = jsondecode(data.aws_secretsmanager_secret_version.db_password_v2_version.secret_string).password
   sensitive   = true
 }
 
@@ -121,9 +120,9 @@ resource "aws_security_group" "allow_ssh" {
 
 # EC2 Instance
 resource "aws_instance" "web_server" {
-  ami           = "ami-123456" # Replace with your AMI ID
+  ami           = "ami-053b12d3152c0cc71" # Replace with your AMI ID
   instance_type = "t2.micro"
-  key_name      = "desktop" # Replace with the name of your key pair in AWS
+  key_name      = "desktop"    # Replace with the name of your key pair in AWS
   security_groups = [aws_security_group.allow_ssh.name]
 
   provisioner "remote-exec" {
@@ -135,11 +134,11 @@ resource "aws_instance" "web_server" {
     }
 
     inline = [
-      "echo 'Database password: $(aws secretsmanager get-secret-value --secret-id ${aws_secretsmanager_secret.db_password.name} --query SecretString --output text)' > /home/ec2-user/db_password.txt"
+      "echo 'Database password: $(aws secretsmanager get-secret-value --secret-id ${aws_secretsmanager_secret.db_password_v2.name} --query SecretString --output text)' > /home/ec2-user/db_password.txt"
     ]
   }
 
   tags = {
-    Name = "web-server-with-secret"
+    Name = "web-server-with-secret-v2"
   }
 }
