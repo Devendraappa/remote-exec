@@ -72,30 +72,30 @@ provider "aws" {
 }
 
 # Create a secret in AWS Secrets Manager
-resource "aws_secretsmanager_secret" "db_password_v3" {
-  name        = "db_password_v3" # New name for the secret
+resource "aws_secretsmanager_secret" "db_password_v4" {
+  name        = "db_password_v4" # New name for the secret
   description = "Database password for the EC2 instance"
 }
 
-resource "aws_secretsmanager_secret_version" "db_password_v3_version" {
-  secret_id     = aws_secretsmanager_secret.db_password_v3.id
+resource "aws_secretsmanager_secret_version" "db_password_v4_version" {
+  secret_id     = aws_secretsmanager_secret.db_password_v4.id
   secret_string = jsonencode({
     password = "MySecurePassword123!" # Replace with your password
   })
 }
 
 # Retrieve the secret using the data source
-data "aws_secretsmanager_secret" "db_password_v3" {
-  name = aws_secretsmanager_secret.db_password_v3.name
+data "aws_secretsmanager_secret" "db_password_v4" {
+  name = aws_secretsmanager_secret.db_password_v4.name
 }
 
-data "aws_secretsmanager_secret_version" "db_password_v3_version" {
-  secret_id = data.aws_secretsmanager_secret.db_password_v3.id
+data "aws_secretsmanager_secret_version" "db_password_v4_version" {
+  secret_id = data.aws_secretsmanager_secret.db_password_v4.id
 }
 
 # Output the secret value
-output "db_password_v3" {
-  value       = jsondecode(data.aws_secretsmanager_secret_version.db_password_v3_version.secret_string).password
+output "db_password_v4" {
+  value       = jsondecode(data.aws_secretsmanager_secret_version.db_password_v4_version.secret_string).password
   sensitive   = true
 }
 
@@ -134,11 +134,11 @@ resource "aws_instance" "web_server" {
     }
 
     inline = [
-      "echo 'Database password: $(aws secretsmanager get-secret-value --secret-id ${aws_secretsmanager_secret.db_password_v3.name} --query SecretString --output text)' > /home/ec2-user/db_password.txt"
+      "echo 'Database password: $(aws secretsmanager get-secret-value --secret-id ${aws_secretsmanager_secret.db_password_v4.name} --query SecretString --output text)' > /home/ubuntu/db_password.txt"
     ]
   }
 
   tags = {
-    Name = "web-server-with-secret-v2"
+    Name = "web-server-with-secret-v4"
   }
 }
