@@ -1,7 +1,7 @@
 name: TerraformRemoteExec
 
 on:
-  push:
+  #push:
 
 permissions:
   contents: read
