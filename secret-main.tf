@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1" # Change to your preferred region
+  region = "ap-south-1" # Change to your preferred region
 }
 
 # Create a secret in AWS Secrets Manager
